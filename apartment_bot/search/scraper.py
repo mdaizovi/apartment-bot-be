@@ -15,10 +15,10 @@ from fake_headers import Headers
 class Scraper:
 
     def __init__(self):
-        BASE_URL = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?"
+        self.BASE_URL = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?"
         self.content = None
     
-    def _open_browser(self):
+    def _open_browser(self, url):
 
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
@@ -29,73 +29,34 @@ class Scraper:
             browser = webdriver.Chrome(os.path.join(settings.BASE_DIR, 'search','chromedriver'), options=chrome_options)
 
         try:
-            browser.get("https://www.google.com")
-            print("Page title was '{}'".format(browser.title))
+            browser.get(self.BASE_URL + url)
+            self.content = browser.page_source
+            items = self._check_listings()
+            print("%s listings found" % len(items))
+            #TODO something with the listings, if they work
         finally:
             browser.quit()
         print("done")
-
-
-    #---------------------------------------------------------------------------
-    def _anonymous_url(self, url = None):
-        """Takes full_url, returns site reading for Beautiful Soup, using requests"""
-        self.content = None
-        attempts = 0
-        response = None
-        headers = Headers(os="mac", headers=True).generate()
-        if not url:
-            url = self.search_url
-
-        while not response and attempts < 5:
-            try:
-                attempts += 1
-                response = requests.get(url, headers=headers, timeout=60)
-                if response:
-                    self.content = response.text
-                    break
-                else:
-                    print("sleeping off the problem")
-                    sleep(randint(60,120))
-            except:
-                print("problem with response")
-                if attempts > 5:
-                    print("\n>5 attempts")
-                    print("check url\n{}\n".format(url))
-                    break
-                sleep_int = randint(5,10)
-                sleep(sleep_int)
-        return self.content
-
-    #---------------------------------------------------------------------------
-    def _protected_url(self, url):
-        """Takes full_url, returns site reading for Beautiful Soup, using requests"""
-        attempts = 0
-        response = None
-
-        with requests.Session() as s:
-            p = s.post(self.login_url, data=payload)
-            # An authorised request.
-            r = s.get(url)
-            self.content = r.text
-
-        return self.content
 
     #-------------------------------------------------------------------------------
     def _check_listings(self):
         # go to url, save any new ones
         items = []
-        self._anonymous_url()
         
         if self.content:
             soup = bs4.BeautifulSoup(self.content, "html.parser")
             if soup:
                 results = soup.find(id='resultListItems')
                 if results:
+                    print("there are results")
                     items = results.find_all("li", {"class": "result-list__listing"})
                 else:
                     print("no results")
                     if "Ich bin kein Roboter - ImmobilienScout24" in soup.getText():
-                        print("knows I'm a robot")
+                        print("\n\nknows I'm a robot\n\n")
+                        Html_file= open("immoBotPage.html","w")
+                        Html_file.write(self.content)
+                        Html_file.close()
             else:
                 print("-----------no soup! Is there a problem?")
             return items
