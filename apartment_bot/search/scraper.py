@@ -3,6 +3,7 @@ import os
 import requests
 from random import randint
 from time import sleep
+from selenium import webdriver
 
 from django.conf import settings
 from django.shortcuts import render
@@ -12,17 +13,29 @@ from fake_headers import Headers
 
 #===============================================================================
 class Scraper:
+
     def __init__(self):
-        #self.login_url = "https://sso.immobilienscout24.de/sso/login?appName=is24main&source=meinkontodropdown-login&sso_return=https://www.immobilienscout24.de/sso/login.go?source%3Dmeinkontodropdown-login%26returnUrl%3D/geschlossenerbereich/start.html?source%253Dmeinkontodropdown-login"
-        self.login_url = "https://sso.immobilienscout24.de/sso/login?appName=is24main&source=meinkontodropdown-login&sso_return=https://www.immobilienscout24.de/sso/login.go?source%3Dmeinkontodropdown-login%26returnUrl%3D/geschlossenerbereich/start.html?source%253Dmeinkontodropdown-login&u=azhYbUpVL2E1OHNTeXpuUUdKaTB2YWdqamE3dzZwS0U5eDBuWlAxeVNLQk1JS2w5ZUJsd1ZnPT0="
-        #self.search_url = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?shape=Z2NtX0lxbG1wQXhoQmtEfGNBc2VDeGhAfWxCaGJAY2BFb0llc0FpTHNzQ3toQGdsRF90QXdoQmlqRm1Fb3RCZmtHemFCaH5AfmhBcGRDeGlAfHNCfFJ6fEQ.&haspromotion=false&numberofrooms=2.5-3.0&price=-800.0&livingspace=70.0-&pricetype=calculatedtotalrent&sorting=2"
-        #self.search_url = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?shape=Z2NtX0lxbG1wQXhoQmtEfGNBc2VDeGhAfWxCaGJAY2BFb0llc0FpTHNzQ0F1aEh5fUJ0UWlqRm1Fb3RCZmtHemFCaH5AfmhBcGRDeGlAfHNCfFJ6fEQ.&haspromotion=false&numberofrooms=2.5-3.0&price=-900.0&livingspace=65.0-&pricetype=calculatedtotalrent&sorting=2"
-        self.search_url = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?shape=cXFyX0lnc2NwQWp6RHlzQXRgRG9vSnhoQH1sQmhiQGNgRW9JZXNBaUxzc0NBdWhIeX1CdFFpakZtRW90QmZrR2t7QHZjR2RSZHpEbGhAYGdCYmlBbn5H&haspromotion=false&numberofrooms=2.0-3.0&price=400.0-980.0&livingspace=60.0-&pricetype=calculatedtotalrent&sorting=2&enteredFrom=result_list"
+        BASE_URL = "https://www.immobilienscout24.de/Suche/shape/wohnung-mieten?"
         self.content = None
-        self.login_payload = {
-            #'inUserName': settings.IMMOBILIENSCOUT_EMAIL,
-            'password': settings.IMMOBILIENSCOUT_PW
-        }
+    
+    def _open_browser(self):
+
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-gpu")
+        if settings.ENV == "prod":
+            browser = webdriver.Chrome(options=chrome_options)
+        elif settings.ENV == "dev":
+            browser = webdriver.Chrome(os.path.join(settings.BASE_DIR, 'search','chromedriver'), options=chrome_options)
+
+        try:
+            browser.get("https://www.google.com")
+            print("Page title was '{}'".format(browser.title))
+        finally:
+            browser.quit()
+        print("done")
+
+
     #---------------------------------------------------------------------------
     def _anonymous_url(self, url = None):
         """Takes full_url, returns site reading for Beautiful Soup, using requests"""

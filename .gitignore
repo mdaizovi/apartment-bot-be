@@ -6,13 +6,15 @@
 
 # Specific files #
 #################
-db.sqlite
-db.sqlite3
+venv
 .idea/
 .env
 .env.pytest
 .env.backup
 .session
-/venv
-/static
-/media
+apartment_bot/search/chromedriver
+apartment_bot/db.sqlite
+apartment_bot/db.sqlite3
+apartment_bot/static
+apartment_bot/media
+

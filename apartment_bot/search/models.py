@@ -5,8 +5,12 @@ from django.contrib.auth import get_user_model
 #===============================================================================
 class SearchUrl(models.Model):
     user = models.ForeignKey(get_user_model(),on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.TextField()
+    set_at = models.DateTimeField(auto_now_add=True)
 
+    #---------------------------------------------------------------------------
+    def __str__(self):
+        return "<%s> for %s set %s at %s" % (self.__class__.__name__, self.user, self.set_at.strftime("%Y-%m-%d"), self.set_at.strftime("%H:%M:%S"))
 
 #===============================================================================
 class Listing(models.Model):

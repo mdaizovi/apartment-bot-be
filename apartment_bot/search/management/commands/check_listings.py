@@ -5,7 +5,7 @@ from random import randint
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from apartments.tasks import check_for_new_listings
+from search.tasks import check_for_new_listings
 
 #source virtualenvwrapper.sh && workon kaffeevenv && python3.5 /home/Dahmer/kaffee/manage.py check_listings
 
@@ -26,6 +26,6 @@ class Command(BaseCommand):
         
         print("--Looking for new listings") 
         check_for_new_listings()
-        sleep_int = randint(5,20)
+        sleep_int = randint(2,6)
         sleep(sleep_int)
         print("\n\n--Done") 
