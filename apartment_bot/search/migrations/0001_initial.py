@@ -7,22 +7,29 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Listing',
+            name="Listing",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('result_id', models.CharField(max_length=200, null=True)),
-                ('title', models.CharField(max_length=200)),
-                ('bdr', models.CharField(max_length=3)),
-                ('sqmeters', models.CharField(max_length=100)),
-                ('rent', models.CharField(max_length=100)),
-                ('landlord', models.CharField(max_length=100)),
-                ('address', models.CharField(max_length=200)),
-                ('emailed', models.DateField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("result_id", models.CharField(max_length=200, null=True)),
+                ("title", models.CharField(max_length=200)),
+                ("bdr", models.CharField(max_length=3)),
+                ("sqmeters", models.CharField(max_length=100)),
+                ("rent", models.CharField(max_length=100)),
+                ("landlord", models.CharField(max_length=100)),
+                ("address", models.CharField(max_length=200)),
+                ("emailed", models.DateField(blank=True, null=True)),
             ],
         ),
     ]

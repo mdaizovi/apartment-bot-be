@@ -9,7 +9,6 @@ from django.conf import settings
 from fake_headers import Headers
 
 
-
 class Scraper:
     def __init__(self):
         self.login_url = "https://sso.immobilienscout24.de/sso/login?appName=is24main&source=meinkontodropdown-login&sso_return=https://www.immobilienscout24.de/sso/login.go?source%3Dmeinkontodropdown-login%26returnUrl%3D/geschlossenerbereich/start.html?source%253Dmeinkontodropdown-login&u=azhYbUpVL2E1OHNTeXpuUUdKaTB2YWdqamE3dzZwS0U5eDBuWlAxeVNLQk1JS2w5ZUJsd1ZnPT0="
@@ -17,10 +16,10 @@ class Scraper:
         self.content = None
         self.login_payload = {
             #'inUserName': settings.IMMOBILIENSCOUT_EMAIL,
-            'password': settings.IMMOBILIENSCOUT_PW
+            "password": settings.IMMOBILIENSCOUT_PW
         }
 
-    def _anonymous_url(self, url = None):
+    def _anonymous_url(self, url=None):
         """Takes full_url, returns site reading for Beautiful Soup, using requests"""
         self.content = None
         attempts = 0
@@ -38,14 +37,14 @@ class Scraper:
                     break
                 else:
                     print("sleeping off the problem")
-                    sleep(randint(60,120))
+                    sleep(randint(60, 120))
             except:
                 print("problem with response")
                 if attempts > 5:
                     print("\n>5 attempts")
                     print("check url\n{}\n".format(url))
                     break
-                sleep_int = randint(5,10)
+                sleep_int = randint(5, 10)
                 sleep(sleep_int)
         return self.content
 
@@ -53,11 +52,11 @@ class Scraper:
         # go to url, save any new ones
         items = []
         self._anonymous_url()
-        
+
         if self.content:
             soup = bs4.BeautifulSoup(self.content, "html.parser")
             if soup:
-                results = soup.find(id='resultListItems')
+                results = soup.find(id="resultListItems")
                 if results:
                     items = results.find_all("li", {"class": "result-list__listing"})
                 else:
@@ -69,38 +68,58 @@ class Scraper:
             return items
         else:
             print("no content?!?")
-        return items     
-
+        return items
 
     def _parse_listing(self, item):
 
-        result_id = item['data-id']
+        result_id = item["data-id"]
         entry_data = item.find("div", {"class": "result-list-entry__data"})
-        title = entry_data.find("h5", {"class": "result-list-entry__brand-title"}).getText()
+        title = entry_data.find(
+            "h5", {"class": "result-list-entry__brand-title"}
+        ).getText()
         if title.startswith("NEU"):
-            title = title.replace("NEU","",1)
+            title = title.replace("NEU", "", 1)
 
-        criteria_div = entry_data.find("div", {"class": "grid grid-flex gutter-horizontal-l gutter-vertical-s"})
+        criteria_div = entry_data.find(
+            "div", {"class": "grid grid-flex gutter-horizontal-l gutter-vertical-s"}
+        )
         criteria_items = criteria_div.find_all("dl")
 
         bdr = criteria_items[2].getText().split()[0]
         sqmeters = criteria_items[1].getText().split()[0]
         rent = criteria_items[0].getText().split()[0]
-        
-        landlord_div = entry_data.find("div", {"class": "result-list-entry__realtor-data-container"})
-        landloard_spans = landlord_div.find_all("span", {"class": "block font-ellipsis"})
-        if len(landloard_spans)>0:
+
+        landlord_div = entry_data.find(
+            "div", {"class": "result-list-entry__realtor-data-container"}
+        )
+        landloard_spans = landlord_div.find_all(
+            "span", {"class": "block font-ellipsis"}
+        )
+        if len(landloard_spans) > 0:
             landlord = landloard_spans[0].getText()
         else:
             landlord = None
-        address = entry_data.find("div", {"class": "result-list-entry__address"}).getText()
+        address = entry_data.find(
+            "div", {"class": "result-list-entry__address"}
+        ).getText()
 
-        return {"result_id":result_id, "title":title,"bdr":bdr, "sqmeters":sqmeters,"rent":rent,"landlord":landlord,"address":address}
-
+        return {
+            "result_id": result_id,
+            "title": title,
+            "bdr": bdr,
+            "sqmeters": sqmeters,
+            "rent": rent,
+            "landlord": landlord,
+            "address": address,
+        }
 
     def _generate_email_text(self, listing):
-        text_path = os.path.join(settings.BASE_DIR, 'apartments','email.txt')
-        replace_dict = {"{{LANDLORD}}":listing.landlord, "{{BDR}}": listing.bdr, "{{ADDRESS}}":listing.address}
+        text_path = os.path.join(settings.BASE_DIR, "apartments", "email.txt")
+        replace_dict = {
+            "{{LANDLORD}}": listing.landlord,
+            "{{BDR}}": listing.bdr,
+            "{{ADDRESS}}": listing.address,
+        }
         if "Frau" in listing.landlord:
             replace_dict["{{TITLE}}"] = "geehrte"
         else:
@@ -108,7 +127,6 @@ class Scraper:
 
         f = open(text_path, "r")
         text = f.read()
-        for k,v, in replace_dict.items():
-            text = text.replace(k,v)
+        for k, v, in replace_dict.items():
+            text = text.replace(k, v)
         return text
-
