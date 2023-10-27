@@ -1,4 +1,5 @@
 from django.apps import AppConfig
 
-class SearchConfig(AppConfig):
-    name = 'search'
+
+class ApartmentsConfig(AppConfig):
+    name = 'apartments'

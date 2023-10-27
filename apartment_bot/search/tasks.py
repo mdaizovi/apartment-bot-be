@@ -19,11 +19,16 @@ def check_for_new_listings():
             for k,v in item_dict.items():
                 setattr(listing, k,v)
 
+            # Send the email
+            email_text = scraper._generate_email_text(listing)
+
             # Send myself a telegram message
             output_target = "-442746676"
             output_content = listing.url
             url = "https://api.telegram.org/bot{}/{}".format(settings.TELEGRAM_BOT_TOKEN, "sendMessage")
             data = {"chat_id": output_target, "text": output_content, "parse_mode": "Markdown"}
             requests.post(url,data=data)
+            data["text"] = email_text
+            requests.post(url, data=data)
 
             listing.save()

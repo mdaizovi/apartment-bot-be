@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import os
 from pathlib import Path
+import os
 import environ
 env = environ.Env(
     # set casting, default value
@@ -33,18 +33,6 @@ DEBUG = True if ENV == "dev" else False
 
 SITE_ID=1
 
-# if ENV_TYPE == "dev":
-#     SITE_ADDRESS = "http://localhost:8000"
-#     SECURE_SSL_REDIRECT = False
-# elif ENV_TYPE=="prod":
-#     SITE_ADDRESS = ""
-#     SECURE_SSL_REDIRECT = True
-# SITE_URL = SITE_ADDRESS
-#ALLOWED_HOSTS = ["127.0.0.1:8000", "127.0.0.1", "localhost",SITE_ADDRESS]
-
-TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN")
-
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 INSTALLED_APPS += [
-    #'accounts',
     'search',
 ]
 MIDDLEWARE = [
@@ -94,7 +81,7 @@ WSGI_APPLICATION = 'apartment_bot.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -136,3 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+IMMOBILIENSCOUT_EMAIL =  env('IMMOBILIENSCOUT_EMAIL')
+IMMOBILIENSCOUT_PW =  env('IMMOBILIENSCOUT_PW')
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN")

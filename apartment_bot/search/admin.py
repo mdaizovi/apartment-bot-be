@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SearchUrl, Listing
+from .models import Listing
 
 #===============================================================================
 class ListingAdmin(admin.ModelAdmin):
@@ -9,7 +9,5 @@ class ListingAdmin(admin.ModelAdmin):
     list_display_links = list_display
     list_filter = ('bdr',)           
     
-
 #===============================================================================
-admin.site.register(SearchUrl)
 admin.site.register(Listing, ListingAdmin)
